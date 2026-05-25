@@ -11,6 +11,35 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = (process.argv[2] === "production");
 
+// 文件复制插件
+const copyManifestPlugin = {
+    name: 'copy-manifest',
+    setup(build) {
+        // onEnd 钩子会在每次构建完成（包括 watch 模式下的重新构建）后触发
+        build.onEnd(result => {
+            if (result.errors.length > 0) {
+                console.log('[copy-plugin] 构建失败，跳过文件复制。');
+                return;
+            }
+            try {
+                // 确保目标文件夹存在
+                if (!fs.existsSync('out')) {
+                    fs.mkdirSync('out', { recursive: true });
+                }
+                
+                // 复制
+                fs.copyFileSync('main.js', 'out/main.js');
+                fs.copyFileSync('manifest.json', 'out/manifest.json');
+                fs.copyFileSync('styles.css', 'out/styles.css');
+                
+				console.log('[copy-plugin] 静态文件已成功复制到 out 目录。');
+            } catch (err) {
+                console.error('[copy-plugin] 复制文件时出错:', err);
+            }
+        });
+    },
+};
+
 const context = await esbuild.context({
 	banner: {
 		js: banner,
@@ -39,6 +68,7 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	minify: prod,
+	plugins: [copyManifestPlugin],
 });
 
 if (prod) {
