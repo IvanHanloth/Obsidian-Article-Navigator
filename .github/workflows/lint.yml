@@ -24,7 +24,7 @@ jobs:
                   node-version: ${{ matrix.node-version }}
             - name: Install pnpm
               run: npm install -g pnpm
-            - run: pnpm ci
+            - run: pnpm run ci
             - run: pnpm build --if-present
             - run: pnpm lint
             
