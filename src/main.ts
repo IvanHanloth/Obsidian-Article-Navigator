@@ -1,99 +1,155 @@
-import {App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
-import {DEFAULT_SETTINGS, MyPluginSettings, SampleSettingTab} from "./settings";
+import { MarkdownView, Plugin, TFile } from 'obsidian';
 
-// Remember to rename these classes and interfaces!
+import { registerCommands } from './commands';
+import {
+	INJECTED_CLASS,
+	INJECTION_REPAIR_INTERVAL_MS,
+	NEW_NOTE_INIT_DELAY_MS,
+	PLUGIN_LOG_PREFIX,
+} from './constants';
+import { I18n } from './i18n';
+import { AutoBacklinkController } from './nav/auto-backlink';
+import { addDefaultPropertiesIfNew } from './nav/frontmatter';
+import {
+	type ArticleNavigatorSettings,
+	DEFAULT_SETTINGS,
+	migrateSettings,
+} from './settings';
+import { ArticleNavigatorSettingTab } from './settings-tab';
+import { ViewManager } from './ui/view-manager';
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+type LabelKey = 'previousLabel' | 'nextLabel' | 'seeAlsoLabel';
 
-	async onload() {
+export default class ArticleNavigatorPlugin extends Plugin {
+	settings: ArticleNavigatorSettings = DEFAULT_SETTINGS;
+	i18n: I18n = new I18n('auto');
+
+	private viewManager!: ViewManager;
+	private backlink!: AutoBacklinkController;
+
+	async onload(): Promise<void> {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
+		this.viewManager = new ViewManager(this);
+		this.backlink = new AutoBacklinkController(this);
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
+		this.addSettingTab(new ArticleNavigatorSettingTab(this.app, this));
+		registerCommands(this);
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
+		this.registerVaultEvents();
+		this.registerWorkspaceEvents();
+		this.registerMetadataEvents();
+
+		this.app.workspace.onLayoutReady(() => {
+			// Prime baselines so the very first user edit isn't swallowed as a
+			// fresh-discovery event.
+			for (const file of this.app.vault.getMarkdownFiles()) {
+				this.backlink.primeBaseline(file);
 			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				editor.replaceSelection('Sample editor command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			}
+			this.viewManager.refreshAllViews();
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			new Notice("Click");
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-
+		this.registerInterval(
+			window.setInterval(
+				() => this.repairMissingInjections(),
+				INJECTION_REPAIR_INTERVAL_MS,
+			),
+		);
 	}
 
-	onunload() {
+	onunload(): void {
+		this.viewManager?.cleanupAllViews();
+		this.viewManager?.dispose();
+		this.backlink?.dispose();
 	}
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<MyPluginSettings>);
+	async loadSettings(): Promise<void> {
+		const stored = (await this.loadData()) as
+			| Partial<ArticleNavigatorSettings>
+			| null;
+		this.settings = migrateSettings(stored);
+		this.i18n = new I18n('auto');
 	}
 
-	async saveSettings() {
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
+		this.viewManager.refreshAllViews();
 	}
 
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
+	/**
+	 * Resolve a user-configurable label, falling back to the current locale's
+	 * default when the user hasn't overridden it.
+	 */
+	localizedLabel(key: LabelKey): string {
+		const override = this.settings[key];
+		if (override && override.trim().length > 0) return override;
+		return this.i18n.t.nav[key];
 	}
 
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
+	openFile(file: TFile, evt?: MouseEvent): void {
+		const newLeaf = Boolean(
+			evt && (evt.ctrlKey || evt.metaKey || evt.button === 1),
+		);
+		void this.app.workspace.getLeaf(newLeaf).openFile(file);
+	}
+
+	// ---------- Event wiring ----------
+
+	private registerVaultEvents(): void {
+		this.registerEvent(
+			this.app.vault.on('create', (file) => {
+				if (!(file instanceof TFile) || file.extension !== 'md') return;
+				if (!this.settings.addToNewNotes) return;
+				window.setTimeout(() => {
+					addDefaultPropertiesIfNew(this.app, this.settings, file).catch((e) =>
+						console.error(PLUGIN_LOG_PREFIX, e),
+					);
+				}, NEW_NOTE_INIT_DELAY_MS);
+			}),
+		);
+	}
+
+	private registerWorkspaceEvents(): void {
+		const refresh = () => this.viewManager.scheduleRefresh();
+		this.registerEvent(this.app.workspace.on('file-open', refresh));
+		this.registerEvent(this.app.workspace.on('active-leaf-change', refresh));
+		this.registerEvent(this.app.workspace.on('layout-change', refresh));
+	}
+
+	private registerMetadataEvents(): void {
+		this.registerEvent(
+			this.app.metadataCache.on('changed', (file) => {
+				this.viewManager.scheduleRefresh();
+				if (!this.settings.autoBacklink) return;
+				if (this.backlink.isSuppressed(file.path)) return;
+
+				// Only trigger when Prev/Next values actually changed. This filters
+				// out unrelated frontmatter edits, re-index noise, and the delayed
+				// 'changed' Obsidian fires after the plugin's own writes.
+				const current = this.backlink.currentSnapshot(file);
+				const baseline = this.backlink.getBaseline(file.path);
+				if (!baseline) {
+					this.backlink.setBaseline(file.path, current);
+					return;
+				}
+				if (current.prev === baseline.prev && current.next === baseline.next) return;
+				this.backlink.scheduleCheck(file);
+			}),
+		);
+	}
+
+	/**
+	 * Safety net: if Obsidian re-renders a view without firing the events we
+	 * listen to, our injected nodes can disappear. Periodically compare the
+	 * expected count of injections against what's actually mounted and trigger
+	 * a refresh when they diverge downwards.
+	 */
+	private repairMissingInjections(): void {
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		if (!view || !view.file) return;
+		const expected = this.viewManager.computeExpectedInjections(view.file);
+		if (expected === 0) return;
+		const actual = view.contentEl.querySelectorAll(`.${INJECTED_CLASS}`).length;
+		if (actual < expected) this.viewManager.refreshAllViews();
 	}
 }
