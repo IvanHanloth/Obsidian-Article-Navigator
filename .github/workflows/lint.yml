@@ -25,6 +25,7 @@ jobs:
             - name: Install pnpm
               run: npm install -g pnpm
             - run: pnpm run ci
+            - run: pnpm install -g eslint
             - run: pnpm build --if-present
             - run: pnpm lint
             
