@@ -37,5 +37,5 @@ jobs:
               uses: actions/upload-artifact@v7
               with:
                   name: lint-results
-                  path: out/
+                  path: dist/
 

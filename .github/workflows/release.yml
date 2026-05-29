@@ -34,11 +34,11 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   tag="${GITHUB_REF#refs/tags/}"
-                  zip -r article-navigator-$tag.zip out/*
+                  zip -r article-navigator-$tag.zip dist/*
                   
 
                   gh release create "$tag" \
                     --title="$tag" \
                     --draft \
-                    out/*
+                    dist/*
                     article-navigator-$tag.zip

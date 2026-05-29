@@ -23,4 +23,4 @@ data.json
 
 test_vault/.obsidian/workspace.json
 
-out/
+dist/

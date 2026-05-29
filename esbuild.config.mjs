@@ -24,16 +24,16 @@ const copyManifestPlugin = {
             }
             try {
                 // 确保目标文件夹存在
-                if (!fs.existsSync('out')) {
-                    fs.mkdirSync('out', { recursive: true });
+                if (!fs.existsSync('dist')) {
+                    fs.mkdirSync('dist', { recursive: true });
                 }
                 
                 // 复制
-                fs.copyFileSync('main.js', 'out/main.js');
-                fs.copyFileSync('manifest.json', 'out/manifest.json');
-                fs.copyFileSync('styles.css', 'out/styles.css');
+                fs.copyFileSync('main.js', 'dist/main.js');
+                fs.copyFileSync('manifest.json', 'dist/manifest.json');
+                fs.copyFileSync('styles.css', 'dist/styles.css');
                 
-				console.log('[copy-plugin] 静态文件已成功复制到 out 目录。');
+				console.log('[copy-plugin] 静态文件已成功复制到 dist 目录。');
             } catch (err) {
                 console.error('[copy-plugin] 复制文件时出错:', err);
             }
