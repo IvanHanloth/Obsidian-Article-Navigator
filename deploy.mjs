@@ -12,6 +12,7 @@
 import { copyFileSync, mkdirSync } from 'fs';
 import { join, resolve } from 'path';
 import { readFileSync } from 'fs';
+import process from 'process';
 
 // ── Resolve vault path ──────────────────────────────────────────────────────
 const vaultPath = resolve(
