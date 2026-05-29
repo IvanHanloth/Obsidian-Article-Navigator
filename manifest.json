@@ -1,7 +1,7 @@
 {
 	"id": "article-navigator",
 	"name": "Article Navigator",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "1.4.0",
 	"description": "Adds Previous / Next / SeeAlso navigation to notes via frontmatter properties. Supports floating buttons or VitePress-style inline navigation.",
 	"author": "IvanHanloth",
