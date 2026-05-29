@@ -1,28 +1,28 @@
-import { MarkdownView, Plugin, TFile } from 'obsidian';
+import { MarkdownView, Plugin, TFile } from "obsidian";
 
-import { registerCommands } from './commands';
+import { registerCommands } from "./commands";
 import {
 	INJECTED_CLASS,
 	INJECTION_REPAIR_INTERVAL_MS,
 	NEW_NOTE_INIT_DELAY_MS,
 	PLUGIN_LOG_PREFIX,
-} from './constants';
-import { I18n } from './i18n';
-import { AutoBacklinkController } from './nav/auto-backlink';
-import { addDefaultPropertiesIfNew } from './nav/frontmatter';
+} from "./constants";
+import { I18n } from "./i18n";
+import { AutoBacklinkController } from "./nav/auto-backlink";
+import { addDefaultPropertiesIfNew } from "./nav/frontmatter";
 import {
 	type ArticleNavigatorSettings,
 	DEFAULT_SETTINGS,
 	migrateSettings,
-} from './settings';
-import { ArticleNavigatorSettingTab } from './settings-tab';
-import { ViewManager } from './ui/view-manager';
+} from "./settings";
+import { ArticleNavigatorSettingTab } from "./settings-tab";
+import { ViewManager } from "./ui/view-manager";
 
-type LabelKey = 'previousLabel' | 'nextLabel' | 'seeAlsoLabel';
+type LabelKey = "previousLabel" | "nextLabel" | "seeAlsoLabel";
 
 export default class ArticleNavigatorPlugin extends Plugin {
 	settings: ArticleNavigatorSettings = DEFAULT_SETTINGS;
-	i18n: I18n = new I18n('auto');
+	i18n: I18n = new I18n("auto");
 
 	private viewManager!: ViewManager;
 	private backlink!: AutoBacklinkController;
@@ -43,9 +43,11 @@ export default class ArticleNavigatorPlugin extends Plugin {
 		this.app.workspace.onLayoutReady(() => {
 			// Prime baselines so the very first user edit isn't swallowed as a
 			// fresh-discovery event.
-			for (const file of this.app.vault.getMarkdownFiles()) {
-				this.backlink.primeBaseline(file);
-			}
+			this.app.workspace.iterateAllLeaves((leaf) => {
+				if (leaf.view instanceof MarkdownView && leaf.view.file) {
+					this.backlink.primeBaseline(leaf.view.file);
+				}
+			});
 			this.viewManager.refreshAllViews();
 		});
 
@@ -64,11 +66,10 @@ export default class ArticleNavigatorPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		const stored = (await this.loadData()) as
-			| Partial<ArticleNavigatorSettings>
-			| null;
+		const stored =
+			(await this.loadData()) as Partial<ArticleNavigatorSettings> | null;
 		this.settings = migrateSettings(stored);
-		this.i18n = new I18n('auto');
+		this.i18n = new I18n("auto");
 	}
 
 	async saveSettings(): Promise<void> {
@@ -97,13 +98,15 @@ export default class ArticleNavigatorPlugin extends Plugin {
 
 	private registerVaultEvents(): void {
 		this.registerEvent(
-			this.app.vault.on('create', (file) => {
-				if (!(file instanceof TFile) || file.extension !== 'md') return;
+			this.app.vault.on("create", (file) => {
+				if (!(file instanceof TFile) || file.extension !== "md") return;
 				if (!this.settings.addToNewNotes) return;
 				window.setTimeout(() => {
-					addDefaultPropertiesIfNew(this.app, this.settings, file).catch((e) =>
-						console.error(PLUGIN_LOG_PREFIX, e),
-					);
+					addDefaultPropertiesIfNew(
+						this.app,
+						this.settings,
+						file,
+					).catch((e) => console.error(PLUGIN_LOG_PREFIX, e));
 				}, NEW_NOTE_INIT_DELAY_MS);
 			}),
 		);
@@ -111,14 +114,22 @@ export default class ArticleNavigatorPlugin extends Plugin {
 
 	private registerWorkspaceEvents(): void {
 		const refresh = () => this.viewManager.scheduleRefresh();
-		this.registerEvent(this.app.workspace.on('file-open', refresh));
-		this.registerEvent(this.app.workspace.on('active-leaf-change', refresh));
-		this.registerEvent(this.app.workspace.on('layout-change', refresh));
+		// 在打开时建立 baseline
+		this.registerEvent(
+			this.app.workspace.on("file-open", (file) => {
+				if (file) this.backlink.primeBaseline(file);
+				refresh();
+			}),
+		);
+		this.registerEvent(
+			this.app.workspace.on("active-leaf-change", refresh),
+		);
+		this.registerEvent(this.app.workspace.on("layout-change", refresh));
 	}
 
 	private registerMetadataEvents(): void {
 		this.registerEvent(
-			this.app.metadataCache.on('changed', (file) => {
+			this.app.metadataCache.on("changed", (file) => {
 				this.viewManager.scheduleRefresh();
 				if (!this.settings.autoBacklink) return;
 				if (this.backlink.isSuppressed(file.path)) return;
@@ -132,7 +143,11 @@ export default class ArticleNavigatorPlugin extends Plugin {
 					this.backlink.setBaseline(file.path, current);
 					return;
 				}
-				if (current.prev === baseline.prev && current.next === baseline.next) return;
+				if (
+					current.prev === baseline.prev &&
+					current.next === baseline.next
+				)
+					return;
 				this.backlink.scheduleCheck(file);
 			}),
 		);
@@ -149,7 +164,9 @@ export default class ArticleNavigatorPlugin extends Plugin {
 		if (!view || !view.file) return;
 		const expected = this.viewManager.computeExpectedInjections(view.file);
 		if (expected === 0) return;
-		const actual = view.contentEl.querySelectorAll(`.${INJECTED_CLASS}`).length;
+		const actual = view.contentEl.querySelectorAll(
+			`.${INJECTED_CLASS}`,
+		).length;
 		if (actual < expected) this.viewManager.refreshAllViews();
 	}
 }

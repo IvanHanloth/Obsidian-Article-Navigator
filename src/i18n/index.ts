@@ -1,3 +1,4 @@
+import { moment } from 'obsidian';
 import en from './locales/en';
 import zh from './locales/zh';
 
@@ -7,87 +8,87 @@ import zh from './locales/zh';
  * `BUNDLES` below.
  */
 export interface Translation {
-	nav: {
-		previousLabel: string;
-		nextLabel: string;
-		seeAlsoLabel: string;
-		previousAria: string;
-		nextAria: string;
-		noPrevious: string;
-		noNext: string;
-		noActiveFile: string;
-	};
-	commands: {
-		goToPrevious: string;
-		goToNext: string;
-		insertProperties: string;
-	};
-	notice: {
-		propertiesAdded: string;
-		propertiesAlreadyPresent: string;
-		autoLinked: string;
-		updated: string;
-	};
-	modal: {
-		confirmReverseTitle: string;
-		confirmReverseMessage: string;
-		confirmReverseConfirm: string;
-		confirmReverseCancel: string;
-	};
-	settings: {
-		heading: string;
+    nav: {
+        previousLabel: string;
+        nextLabel: string;
+        seeAlsoLabel: string;
+        previousAria: string;
+        nextAria: string;
+        noPrevious: string;
+        noNext: string;
+        noActiveFile: string;
+    };
+    commands: {
+        goToPrevious: string;
+        goToNext: string;
+        insertProperties: string;
+    };
+    notice: {
+        propertiesAdded: string;
+        propertiesAlreadyPresent: string;
+        autoLinked: string;
+        updated: string;
+    };
+    modal: {
+        confirmReverseTitle: string;
+        confirmReverseMessage: string;
+        confirmReverseConfirm: string;
+        confirmReverseCancel: string;
+    };
+    settings: {
+        heading: string;
 
-		addToNewNotesName: string;
-		addToNewNotesDesc: string;
+        addToNewNotesName: string;
+        addToNewNotesDesc: string;
 
-		inlineEnabledName: string;
-		inlineEnabledDesc: string;
+        inlineEnabledName: string;
+        inlineEnabledDesc: string;
 
-		floatingStyleName: string;
-		floatingStyleDesc: string;
-		floatingStyleOff: string;
-		floatingStyleCircle: string;
-		floatingStyleTall: string;
+        floatingStyleName: string;
+        floatingStyleDesc: string;
+        floatingStyleOff: string;
+        floatingStyleCircle: string;
+        floatingStyleTall: string;
 
-		seeAlsoPositionName: string;
-		seeAlsoPositionDesc: string;
-		seeAlsoPositionBottom: string;
-		seeAlsoPositionTop: string;
-		seeAlsoPositionHidden: string;
+        seeAlsoPositionName: string;
+        seeAlsoPositionDesc: string;
+        seeAlsoPositionBottom: string;
+        seeAlsoPositionTop: string;
+        seeAlsoPositionHidden: string;
 
-		floatingBehaviorHeading: string;
-		idleFadeName: string;
-		idleFadeDesc: string;
-		idleSecondsName: string;
-		idleSecondsDesc: string;
+        floatingBehaviorHeading: string;
+        idleFadeName: string;
+        idleFadeDesc: string;
+        idleSecondsName: string;
+        idleSecondsDesc: string;
 
-		tapHeading: string;
-		doubleClickEdgesName: string;
-		doubleClickEdgesDesc: string;
-		mobileTapName: string;
-		mobileTapDesc: string;
+        tapHeading: string;
+        doubleClickEdgesName: string;
+        doubleClickEdgesDesc: string;
+        mobileTapName: string;
+        mobileTapDesc: string;
 
-		backlinkHeading: string;
-		autoBacklinkName: string;
-		autoBacklinkDesc: string;
-		conflictName: string;
-		conflictDesc: string;
-		conflictPrompt: string;
-		conflictAuto: string;
-		conflictSkip: string;
+        backlinkHeading: string;
+        autoBacklinkName: string;
+        autoBacklinkDesc: string;
+        conflictName: string;
+        conflictDesc: string;
+        conflictPrompt: string;
+        conflictAuto: string;
+        conflictSkip: string;
 
-		keysHeading: string;
-		keysDesc: string;
-		previousKeyName: string;
-		nextKeyName: string;
-		seeAlsoKeyName: string;
+        keysHeading: string;
+        keysDesc: string;
+        previousKeyName: string;
+        nextKeyName: string;
+        seeAlsoKeyName: string;
 
-		labelsHeading: string;
-		labelsDesc: string;
-		previousLabelName: string;
-		nextLabelName: string;
-		seeAlsoLabelName: string;
-	};
+        labelsHeading: string;
+        labelsDesc: string;
+        previousLabelName: string;
+        nextLabelName: string;
+        seeAlsoLabelName: string;
+    };
 }
 
 type LocaleCode = 'en' | 'zh';
@@ -96,37 +97,36 @@ export type LocaleSetting = 'auto' | LocaleCode;
 const FALLBACK_LOCALE: LocaleCode = 'en';
 
 const BUNDLES: Record<LocaleCode, Translation> = {
-	en,
-	zh,
+    en,
+    zh,
 };
 
 /**
- * Read Obsidian's UI language from local storage. Obsidian stores it under the
- * key `language`. Falls back to the browser's `navigator.language` and then to
- * the fallback locale.
+ * Read Obsidian's UI language via the official moment API.
+ * This ensures strict adherence to Obsidian plugin guidelines by completely
+ * avoiding window.localStorage while maintaining perfect synchronization 
+ * with the host application's language settings.
  */
 function detectObsidianLocale(): LocaleCode {
-	const fromStorage =
-		typeof window !== 'undefined' && window.localStorage
-			? window.localStorage.getItem('language')
-			: null;
-	const candidates = [
-		fromStorage,
-		typeof navigator !== 'undefined' ? navigator.language : null,
-	];
-	for (const raw of candidates) {
-		if (!raw) continue;
-		const lower = raw.toLowerCase();
-		if (lower.startsWith('zh')) return 'zh';
-		if (lower.startsWith('en')) return 'en';
-	}
-	return FALLBACK_LOCALE;
+    // 获取当前 Obsidian 环境的语言代码，例如 'zh-cn', 'en', 'fr' 等
+    const currentLocale = moment.locale().toLowerCase();
+
+    // 模糊匹配前缀
+    if (currentLocale.startsWith('zh')) {
+        return 'zh';
+    }
+    if (currentLocale.startsWith('en')) {
+        return 'en';
+    }
+    
+    // 如果系统语言既不是中文也不是英文，则降级 (Fallback) 到默认的英文
+    return FALLBACK_LOCALE;
 }
 
 export function resolveLocale(setting: LocaleSetting): LocaleCode {
-	if (setting === 'auto') return detectObsidianLocale();
-	if (setting in BUNDLES) return setting;
-	return FALLBACK_LOCALE;
+    if (setting === 'auto') return detectObsidianLocale();
+    if (setting in BUNDLES) return setting;
+    return FALLBACK_LOCALE;
 }
 
 /**
@@ -135,11 +135,11 @@ export function resolveLocale(setting: LocaleSetting): LocaleCode {
  * obvious during development.
  */
 function format(template: string, vars?: Record<string, string | number>): string {
-	if (!vars) return template;
-	return template.replace(/\{(\w+)\}/g, (match, key: string) => {
-		const value = vars[key];
-		return value === undefined ? match : String(value);
-	});
+    if (!vars) return template;
+    return template.replace(/\{(\w+)\}/g, (match, key: string) => {
+        const value = vars[key];
+        return value === undefined ? match : String(value);
+    });
 }
 
 /**
@@ -148,15 +148,15 @@ function format(template: string, vars?: Record<string, string | number>): strin
  * a global mutable state.
  */
 export class I18n {
-	readonly locale: LocaleCode;
-	readonly t: Translation;
+    readonly locale: LocaleCode;
+    readonly t: Translation;
 
-	constructor(setting: LocaleSetting) {
-		this.locale = resolveLocale(setting);
-		this.t = BUNDLES[this.locale];
-	}
+    constructor(setting: LocaleSetting) {
+        this.locale = resolveLocale(setting);
+        this.t = BUNDLES[this.locale];
+    }
 
-	format(template: string, vars?: Record<string, string | number>): string {
-		return format(template, vars);
-	}
+    format(template: string, vars?: Record<string, string | number>): string {
+        return format(template, vars);
+    }
 }
