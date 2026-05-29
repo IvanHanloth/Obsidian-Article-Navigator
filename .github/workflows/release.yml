@@ -6,7 +6,7 @@ on:
             - "*"
 
 jobs:
-    build:
+    build_and_release:
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -44,6 +44,6 @@ jobs:
                   zip -r article-navigator-$tag.zip dist/*
                   
                   gh release create "$tag" \
-                    --title="$tag" \
+                    --title="Article Navigator v$tag" \
                     --draft \
                     dist/* article-navigator-$tag.zip
