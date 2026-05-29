@@ -36,9 +36,7 @@ jobs:
                   tag="${GITHUB_REF#refs/tags/}"
                   zip -r article-navigator-$tag.zip dist/*
                   
-
                   gh release create "$tag" \
                     --title="$tag" \
                     --draft \
-                    dist/*
-                    article-navigator-$tag.zip
+                    dist/* article-navigator-$tag.zip
