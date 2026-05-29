@@ -150,7 +150,7 @@ All three commands can be assigned to custom hotkeys in **Settings → Hotkeys**
 ### Setup
 
 ```bash
-git clone https://github.com/your-username/obsidian-article-navigator
+git clone https://github.com/IvanHanloth/obsidian-article-navigator
 cd obsidian-article-navigator
 npm install
 ```
@@ -224,4 +224,4 @@ src/
 
 ## License
 
-[BSD Zero Clause License](LICENSE) — do whatever you want.
+MIT License

@@ -70,16 +70,16 @@
 }
 
 /* Tall variant */
-.article-nav-floating-btn-tall {
+.article-nav-floating-btn.article-nav-floating-btn-tall {
 	position: relative;
 	width: 70px;
 	padding: 0;
 	height: 100%;
 	border-radius: 0;
-	background: transparent !important;
+	background: transparent;
 	outline: 1px solid transparent;
 	border: 1px solid transparent;
-	box-shadow: none !important;
+	box-shadow: none;
 	pointer-events: none;
 }
 
@@ -169,13 +169,14 @@
 	grid-column: 2;
 }
 
-.article-nav-inline-link {
+.article-nav-inline a.article-nav-inline-link,
+.article-nav-inline .article-nav-inline-link{
 	display: block;
 	width: 100%;
 	padding: 12px 16px;
 	border: 1px solid var(--background-modifier-border);
 	border-radius: 8px;
-	text-decoration: none !important;
+	text-decoration: none;
 	color: var(--text-normal);
 	background: var(--background-primary);
 	transition: border-color 0.15s ease, transform 0.15s ease, color 0.15s ease, background 0.15s ease;

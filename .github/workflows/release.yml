@@ -6,10 +6,12 @@ on:
             - "*"
 
 jobs:
-    build:
+    build_and_release:
         runs-on: ubuntu-latest
         permissions:
             contents: write
+            id-token: write       # 生成 OIDC token 必需
+            attestations: write   # 写入证明必需
         steps:
             - uses: actions/checkout@v4
             - name: Install pnpm
@@ -29,6 +31,11 @@ jobs:
                   pnpm build --if-present
                   pnpm lint
 
+            - name: Generate artifact attestation
+              uses: actions/attest-build-provenance@v2
+              with:
+                  subject-path: 'dist/*'
+
             - name: Create release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,6 +44,6 @@ jobs:
                   zip -r article-navigator-$tag.zip dist/*
                   
                   gh release create "$tag" \
-                    --title="$tag" \
+                    --title="Article Navigator v$tag" \
                     --draft \
                     dist/* article-navigator-$tag.zip

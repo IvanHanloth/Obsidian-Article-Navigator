@@ -150,7 +150,7 @@ SeeAlso:
 ### 初始化
 
 ```bash
-git clone https://github.com/your-username/obsidian-article-navigator
+git clone https://github.com/IvanHanloth/obsidian-article-navigator
 cd obsidian-article-navigator
 npm install
 ```
@@ -224,4 +224,4 @@ src/
 
 ## 许可证
 
-[BSD Zero Clause License](LICENSE) — 无任何限制，随意使用。
+MIT License 
