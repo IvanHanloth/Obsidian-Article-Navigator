@@ -18,14 +18,18 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+                  
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ matrix.node-version }}
-            - name: Install pnpm
-              run: npm install -g pnpm
+                  cache: 'pnpm'
+                  
             - run: pnpm run ci
-            - run: pnpm install -g eslint
             - run: pnpm build --if-present
             - run: pnpm lint
             

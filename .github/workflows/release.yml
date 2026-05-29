@@ -1,0 +1,44 @@
+name: Release Obsidian plugin
+
+on:
+    push:
+        tags:
+            - "*"
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+                  
+            - name: Use Node.js 22.x
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22.x"
+                  cache: 'pnpm'
+
+            - name: Build plugin
+              run: |
+                  pnpm run ci
+                  pnpm build --if-present
+                  pnpm lint
+
+            - name: Create release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  tag="${GITHUB_REF#refs/tags/}"
+                  zip -r article-navigator-$tag.zip out/*
+                  
+
+                  gh release create "$tag" \
+                    --title="$tag" \
+                    --draft \
+                    out/*
+                    article-navigator-$tag.zip
