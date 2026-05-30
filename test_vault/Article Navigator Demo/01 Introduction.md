@@ -1,11 +1,11 @@
 ---
+tags:
+  - article-navigator
+  - demo
 PreviousArticle: "[[06 Auto Backlink]]"
 NextArticle: "[[02 Setting Up Properties]]"
 SeeAlso:
   - "[[06 Auto Backlink]]"
-tags:
-  - article-navigator
-  - demo
 ---
 
 # Article Navigator — Introduction

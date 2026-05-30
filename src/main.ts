@@ -27,6 +27,16 @@ export default class ArticleNavigatorPlugin extends Plugin {
 	private viewManager!: ViewManager;
 	private backlink!: AutoBacklinkController;
 
+	/**
+	 * Called by the settings tab after the user changes the navigation property
+	 * keys. The auto-backlink controller caches per-file snapshots keyed by the
+	 * *previous* settings, so we drop them here to avoid spurious reciprocal
+	 * updates the next time Obsidian re-indexes those files.
+	 */
+	onPropertyKeysChanged(): void {
+		this.backlink?.clearBaselines();
+	}
+
 	async onload(): Promise<void> {
 		await this.loadSettings();
 
