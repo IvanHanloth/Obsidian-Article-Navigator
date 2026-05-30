@@ -1,12 +1,12 @@
 ---
+tags:
+  - article-navigator
+  - demo
 PreviousArticle: "[[03 Floating Buttons]]"
 NextArticle: "[[05 See Also Links]]"
 SeeAlso:
   - "[[03 Floating Buttons]]"
   - "[[05 See Also Links]]"
-tags:
-  - article-navigator
-  - demo
 ---
 
 # Inline Navigation

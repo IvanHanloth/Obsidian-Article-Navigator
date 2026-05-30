@@ -64,9 +64,9 @@ const en: Translation = {
 		doubleClickEdgesName: 'Double-click left/right margins to navigate',
 		doubleClickEdgesDesc:
 			'When enabled, double-clicking the empty area to the left/right of the content navigates to the previous/next article.',
-		mobileTapName: 'Tap left/right half on small screens',
+		mobileTapName: 'Double-tap left/right half on small screens',
 		mobileTapDesc:
-			'On mobile / small screens, a single tap on the left half navigates to the previous article and the right half navigates to the next.',
+			'On mobile / small screens, double-tapping the left half navigates to the previous article and the right half to the next. Single taps remain unchanged so cursor placement and editing keep working.',
 
 		backlinkHeading: 'Auto reverse linking',
 		autoBacklinkName: 'Enable auto reverse linking',
@@ -81,10 +81,26 @@ const en: Translation = {
 
 		keysHeading: 'Property keys',
 		keysDesc:
-			'Customize the frontmatter property names used for navigation. Existing notes using the old keys will not be migrated automatically.',
+			'Customize the frontmatter property names used for navigation .',
 		previousKeyName: 'Previous article key',
 		nextKeyName: 'Next article key',
 		seeAlsoKeyName: 'See Also key',
+		keysSaveButton: 'Save',
+		keysSaveAndRenameButton: 'Save & rename existing notes',
+		keysSaveTooltip:
+			'Save the new key names. Existing notes keep their old keys until you also run Save & rename.',
+		keysSaveAndRenameTooltip:
+			'Save the new key names and rewrite every note in the vault so the old keys become the new ones.',
+		keysNoChangesNotice: 'No property key changes to save.',
+		keysInvalidNotice: 'Property keys cannot be empty.',
+		keysDuplicateNotice:
+			'The three property keys must all be different from one another.',
+		keysSavedNotice: 'Property keys saved.',
+		keysRenameStartedNotice: 'Renaming properties across the vault…',
+		keysRenameDoneNotice:
+			'Renamed {keysRenamed} key(s) across {filesUpdated} note(s).',
+		keysRenameDoneWithSkipsNotice:
+			'Renamed {keysRenamed} key(s) across {filesUpdated} note(s). Skipped {keysSkipped} key(s) on notes where the new key was already in use.',
 
 		labelsHeading: 'Display labels',
 		labelsDesc: 'Leave a label empty to use the Obsidian-language default.',

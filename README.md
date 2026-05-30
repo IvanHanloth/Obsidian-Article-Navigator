@@ -20,9 +20,26 @@ Adds **Previous / Next / See Also** navigation to your notes through standard fr
 
 ---
 
+## Demo
+
+![navigate to previous article](doc/img/previous-article-demo.png)
+
+![see also demo](doc/img/seealso-demo.png)
+
+![navigate to next article with circular style navigator](doc/img/next-circle-demo.png)
+
+---
+
 ## Installation
 
-### Community plugin browser *(once listed)*
+Make sure you have turned off **Restricted mode** in **Settings → Community plugins** to allow using plugins.
+
+### Via Obsidian URI
+
+1. click this link: [obsidian://show-plugin?id=article-navigator](obsidian://show-plugin?id=article-navigator) to open the plugin page in Obsidian's Community plugin browser.
+2. Click **Install**, then **Enable**.
+
+### Community plugin browser
 
 1. Open **Settings → Community plugins → Browse**.
 2. Search for **Article Navigator**.
@@ -108,7 +125,18 @@ SeeAlso:
 
 ### Property keys
 
-Override the frontmatter key names. Changes apply only to new links — existing notes using old keys are not migrated automatically.
+Override the frontmatter key names used by the plugin.
+
+Edits to these three fields are **not** saved on the fly — the inputs hold a draft until you click one of the two shared buttons at the bottom of the section. Both buttons are always visible but only become clickable once at least one key actually differs from the saved value.
+
+| Button | What it does |
+|---|---|
+| **Save** | Persist the new key names. Existing notes keep their old keys; the plugin will simply look for the new keys from now on. |
+| **Save & rename existing notes** | Persist the new key names *and* rewrite every note in the vault so the old keys are migrated to the new ones. |
+
+The rename pass is safe to use when you reshuffle multiple keys at once (for example swapping `A → B` and `B → A`). Internally each affected file is processed in two phases: every source key is first moved to a unique temporary placeholder, then the placeholder is moved onto the final destination. This avoids any intermediate collision. If a target key is already present on a note from an unrelated source, the rename for that particular key on that note is skipped so unrelated data is never clobbered — the final notice tells you how many keys were skipped, if any.
+
+Renaming uses Obsidian's `processFrontMatter` API, which means the YAML is normalised the same way Obsidian itself writes properties; cached navigation snapshots are also reset afterwards so the auto-backlink controller doesn't mistake the rename for a real user edit.
 
 | Setting | Default |
 |---|---|

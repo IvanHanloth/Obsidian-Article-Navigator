@@ -1,10 +1,10 @@
 ---
-PreviousArticle: "[[01 Introduction]]"
-NextArticle: "[[03 Floating Buttons]]"
-SeeAlso: []
 tags:
   - article-navigator
   - demo
+PreviousArticle: "[[01 Introduction]]"
+NextArticle: "[[03 Floating Buttons]]"
+SeeAlso: []
 ---
 
 # Setting Up Navigation Properties

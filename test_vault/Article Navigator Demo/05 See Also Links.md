@@ -1,13 +1,13 @@
 ---
+tags:
+  - article-navigator
+  - demo
 PreviousArticle: "[[04 Inline Navigation]]"
-NextArticle: "[[06 Auto Backlink]]"
+NextArticle: "[[03 Floating Buttons]]"
 SeeAlso:
   - "[[01 Introduction]]"
   - "[[03 Floating Buttons]]"
   - "[[06 Auto Backlink]]"
-tags:
-  - article-navigator
-  - demo
 ---
 
 # See Also Links
