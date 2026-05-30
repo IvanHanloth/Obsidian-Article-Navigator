@@ -20,11 +20,28 @@
 
 ---
 
+## Demo
+
+![导航至前一篇文章](doc/img/previous-article-demo.png)
+
+![相关阅读演示](doc/img/seealso-demo.png)
+
+![导航至下一篇文章（圆形按钮样式）](doc/img/next-circle-demo.png)
+
+---
+
 ## 安装方式
 
-### 社区插件市场 *（上架后可用）*
+使用插件前，请确保你已经前往 **设置 → 第三方插件** 关闭了**安全模式**，以允许使用社区插件。
 
-1. 打开 **设置 → 社区插件 → 浏览**。
+### 通过 Obsidian URI 安装
+
+1. 点击此链接：[obsidian://show-plugin?id=article-navigator](obsidian://show-plugin?id=article-navigator)，在 Obsidian 的社区插件浏览器中打开插件页面。
+2. 点击 **安装**，然后点击 **启用**。
+
+### 社区插件市场
+
+1. 打开 **设置 → 第三方插件 → 社区插件市场 → 浏览**。
 2. 搜索 **Article Navigator**。
 3. 点击**安装**，然后点击**启用**。
 
