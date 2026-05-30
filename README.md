@@ -20,9 +20,26 @@ Adds **Previous / Next / See Also** navigation to your notes through standard fr
 
 ---
 
+## Demo
+
+![navigate to previous article](doc/img/previous-article-demo.png)
+
+![see also demo](doc/img/seealso-demo.png)
+
+![navigate to next article with circular style navigator](doc/img/next-circle-demo.png)
+
+---
+
 ## Installation
 
-### Community plugin browser *(once listed)*
+Make sure you have turned off **Restricted mode** in **Settings → Community plugins** to allow using plugins.
+
+### Via Obsidian URI
+
+1. click this link: [obsidian://show-plugin?id=article-navigator](obsidian://show-plugin?id=article-navigator) to open the plugin page in Obsidian's Community plugin browser.
+2. Click **Install**, then **Enable**.
+
+### Community plugin browser
 
 1. Open **Settings → Community plugins → Browse**.
 2. Search for **Article Navigator**.
