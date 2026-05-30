@@ -1,12 +1,12 @@
 ---
+tags:
+  - article-navigator
+  - demo
 PreviousArticle: "[[05 See Also Links]]"
 NextArticle:
 SeeAlso:
   - "[[01 Introduction]]"
   - "[[03 Floating Buttons]]"
-tags:
-  - article-navigator
-  - demo
 ---
 # Auto Backlink
 

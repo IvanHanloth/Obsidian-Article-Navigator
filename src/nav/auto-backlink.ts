@@ -59,6 +59,16 @@ export class AutoBacklinkController {
 		this.lastKnownNavValues.set(path, snapshot);
 	}
 
+	/**
+	 * Drop every cached baseline. Used after the user changes the navigation
+	 * property keys: the stored snapshots were keyed against the previous
+	 * settings, so the next `changed` event needs to re-prime instead of
+	 * comparing against a snapshot that no longer reflects the configured keys.
+	 */
+	clearBaselines(): void {
+		this.lastKnownNavValues.clear();
+	}
+
 	isSuppressed(path: string): boolean {
 		return this.suppressTimers.has(path);
 	}

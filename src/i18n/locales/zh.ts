@@ -77,10 +77,25 @@ const zh: Translation = {
 
 		keysHeading: '属性键名',
 		keysDesc:
-			'自定义用于导航的 frontmatter 属性名。旧键名下已有的笔记不会被自动迁移。',
+			'自定义用于导航的 frontmatter 属性名。',
 		previousKeyName: '上一篇属性键',
 		nextKeyName: '下一篇属性键',
 		seeAlsoKeyName: 'See Also 属性键',
+		keysSaveButton: '保存',
+		keysSaveAndRenameButton: '保存并重命名已有笔记',
+		keysSaveTooltip:
+			'只保存新键名；已有笔记仍然使用旧键名，直到你执行「保存并重命名」。',
+		keysSaveAndRenameTooltip:
+			'保存新键名，并扫描库中的每个笔记，将旧键名重写为新键名。',
+		keysNoChangesNotice: '属性键名没有改动需要保存。',
+		keysInvalidNotice: '属性键名不能为空。',
+		keysDuplicateNotice: '三个属性键名必须互不相同。',
+		keysSavedNotice: '属性键名已保存。',
+		keysRenameStartedNotice: '正在重命名库中的属性…',
+		keysRenameDoneNotice:
+			'已在 {filesUpdated} 个笔记中重命名 {keysRenamed} 个属性。',
+		keysRenameDoneWithSkipsNotice:
+			'已在 {filesUpdated} 个笔记中重命名 {keysRenamed} 个属性。另有 {keysSkipped} 个属性因目标键名在该笔记中已存在而被跳过。',
 
 		labelsHeading: '显示标签',
 		labelsDesc: '留空则使用 Obsidian 当前语言的默认值。',

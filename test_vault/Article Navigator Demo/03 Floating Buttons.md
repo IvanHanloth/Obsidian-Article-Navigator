@@ -1,11 +1,11 @@
 ---
+tags:
+  - article-navigator
+  - demo
 PreviousArticle: "[[02 Setting Up Properties]]"
 NextArticle: "[[04 Inline Navigation]]"
 SeeAlso:
   - "[[04 Inline Navigation]]"
-tags:
-  - article-navigator
-  - demo
 ---
 
 # Floating Buttons

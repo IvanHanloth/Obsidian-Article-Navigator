@@ -82,6 +82,17 @@ export interface Translation {
         previousKeyName: string;
         nextKeyName: string;
         seeAlsoKeyName: string;
+        keysSaveButton: string;
+        keysSaveAndRenameButton: string;
+        keysSaveTooltip: string;
+        keysSaveAndRenameTooltip: string;
+        keysNoChangesNotice: string;
+        keysInvalidNotice: string;
+        keysDuplicateNotice: string;
+        keysSavedNotice: string;
+        keysRenameStartedNotice: string;
+        keysRenameDoneNotice: string;
+        keysRenameDoneWithSkipsNotice: string;
 
         labelsHeading: string;
         labelsDesc: string;
