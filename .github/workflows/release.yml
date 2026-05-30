@@ -1,9 +1,19 @@
 name: Release Obsidian plugin
 
 on:
+    # A tag push (created by a human, or by the "Bump version and tag" workflow).
     push:
         tags:
             - "*"
+    # Let the "Bump version and tag" workflow invoke this one directly. A tag pushed
+    # with the default GITHUB_TOKEN does NOT fire the "push" event above, so the bump
+    # workflow calls this explicitly instead of relying on the tag push.
+    workflow_call:
+        inputs:
+            tag:
+                description: "Tag to release"
+                required: true
+                type: string
 
 jobs:
     build_and_release:
@@ -12,30 +22,38 @@ jobs:
             contents: write
             id-token: write       # 生成 OIDC token 必需
             attestations: write   # 写入证明必需
+        env:
+            TAG: ${{ inputs.tag || github.ref_name }}
         steps:
             - uses: actions/checkout@v4
+              with:
+                  ref: ${{ inputs.tag || github.ref_name }}
+
             - name: Install pnpm
               uses: pnpm/action-setup@v4
               with:
                   version: 10
-                  
+
             - name: Use Node.js 22.x
               uses: actions/setup-node@v4
               with:
                   node-version: "22.x"
                   cache: 'pnpm'
 
+            # Fail fast if the tag does not match the version in package.json /
+            # manifest.json, or is not registered in versions.json.
+            - name: Verify version matches tag
+              run: node scripts/version.mjs check "$TAG"
+
             - name: Build plugin
               run: |
                   pnpm run ci
                   pnpm build --if-present
                   pnpm lint
-            
-            - name:  Compress plugin
-              run: |
-                  tag="${GITHUB_REF#refs/tags/}"
-                  zip -r article-navigator-$tag.zip dist/*
-            
+
+            - name: Compress plugin
+              run: zip -r "article-navigator-$TAG.zip" dist/*
+
             - name: Generate artifact attestation
               uses: actions/attest-build-provenance@v2
               with:
@@ -44,9 +62,8 @@ jobs:
             - name: Create release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: |     
-                  tag="${GITHUB_REF#refs/tags/}"             
-                  gh release create "$tag" \
-                    --title="Article Navigator v$tag" \
+              run: |
+                  gh release create "$TAG" \
+                    --title="Article Navigator v$TAG" \
                     --generate-notes \
-                    dist/* article-navigator-$tag.zip
+                    dist/* "article-navigator-$TAG.zip"

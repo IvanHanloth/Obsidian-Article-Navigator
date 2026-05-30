@@ -7,8 +7,9 @@
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"deploy": "pnpm build && node deploy.mjs",
-		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"deploy": "pnpm build && node scripts/deploy.mjs",
+		"version:check": "node scripts/version.mjs check",
+		"version:apply": "node scripts/version.mjs apply",
 		"lint": "eslint .",
 		"ci": "pnpm install --frozen-lockfile"
 	},
