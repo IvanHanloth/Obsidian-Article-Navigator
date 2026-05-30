@@ -1,0 +1,67 @@
+name: Bump version and tag
+
+# Manually triggered. Writes the given version into package.json / manifest.json /
+# versions.json, commits the change, creates the matching git tag, pushes both, then
+# runs the release workflow for that tag.
+
+on:
+    workflow_dispatch:
+        inputs:
+            tag:
+                description: "Version to release, e.g. 1.2.0 or 1.2.0-beta.1 (a leading v is allowed)"
+                required: true
+                type: string
+
+jobs:
+    bump:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        outputs:
+            version: ${{ steps.ver.outputs.version }}
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Use Node.js 22.x
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22.x"
+
+            - name: Apply version to files
+              run: node scripts/version.mjs apply "${{ inputs.tag }}"
+
+            - name: Read normalized version
+              id: ver
+              run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
+
+            - name: Commit, tag and push
+              env:
+                  VERSION: ${{ steps.ver.outputs.version }}
+                  BRANCH: ${{ github.ref_name }}
+              run: |
+                  if git ls-remote --tags --exit-code origin "refs/tags/$VERSION" >/dev/null 2>&1; then
+                      echo "::error::Tag $VERSION already exists on origin — bump to a new version."
+                      exit 1
+                  fi
+
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  git add package.json manifest.json versions.json
+                  git commit -m "chore(release): v$VERSION"
+                  git tag "$VERSION"
+
+                  git push origin "HEAD:$BRANCH"
+                  git push origin "refs/tags/$VERSION"
+
+    # Build and publish the GitHub release for the freshly pushed tag.
+    release:
+        needs: bump
+        permissions:
+            contents: write
+            id-token: write
+            attestations: write
+        uses: ./.github/workflows/release.yml
+        secrets: inherit
+        with:
+            tag: ${{ needs.bump.outputs.version }}
