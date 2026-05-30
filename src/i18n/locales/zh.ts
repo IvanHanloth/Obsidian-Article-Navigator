@@ -60,9 +60,9 @@ const zh: Translation = {
 		doubleClickEdgesName: '双击左右页边距进行导航',
 		doubleClickEdgesDesc:
 			'启用后，双击内容区左右两侧空白处分别跳转到上一篇/下一篇。',
-		mobileTapName: '小屏幕单击左/右半屏',
+		mobileTapName: '小屏幕双击左/右半屏',
 		mobileTapDesc:
-			'在移动端或小屏幕上，单击左半屏跳转到上一篇，单击右半屏跳转到下一篇。',
+			'在移动端或小屏幕上，双击左半屏跳转到上一篇，双击右半屏跳转到下一篇。单击保持原有的光标定位和编辑行为不变。',
 
 		backlinkHeading: '自动反向链接',
 		autoBacklinkName: '启用自动反向链接',
