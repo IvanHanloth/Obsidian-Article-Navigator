@@ -64,9 +64,9 @@ const en: Translation = {
 		doubleClickEdgesName: 'Double-click left/right margins to navigate',
 		doubleClickEdgesDesc:
 			'When enabled, double-clicking the empty area to the left/right of the content navigates to the previous/next article.',
-		mobileTapName: 'Tap left/right half on small screens',
+		mobileTapName: 'Double-tap left/right half on small screens',
 		mobileTapDesc:
-			'On mobile / small screens, a single tap on the left half navigates to the previous article and the right half navigates to the next.',
+			'On mobile / small screens, double-tapping the left half navigates to the previous article and the right half to the next. Single taps remain unchanged so cursor placement and editing keep working.',
 
 		backlinkHeading: 'Auto reverse linking',
 		autoBacklinkName: 'Enable auto reverse linking',
