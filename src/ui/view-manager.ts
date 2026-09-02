@@ -73,7 +73,7 @@ export class ViewManager {
 		}
 		if (
 			this.plugin.settings.seeAlsoPosition !== 'none' &&
-			data.seeAlsoFiles.length > 0
+			data.seeAlsoTargets.length > 0
 		) {
 			count++;
 		}

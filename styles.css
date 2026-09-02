@@ -268,6 +268,14 @@
 	text-decoration: underline;
 }
 
+.article-nav-seealso-link.external-link {
+	color: var(--link-external-color, var(--link-color));
+}
+
+.article-nav-seealso-link.external-link:hover {
+	color: var(--link-external-color-hover, var(--link-color-hover));
+}
+
 /* ===== Confirm modal ===== */
 
 .article-nav-confirm-message {
