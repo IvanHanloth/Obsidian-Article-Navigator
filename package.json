@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-article-navigator",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Adds Previous / Next / SeeAlso navigation to Obsidian notes via frontmatter properties.",
 	"main": "main.js",
 	"type": "module",
