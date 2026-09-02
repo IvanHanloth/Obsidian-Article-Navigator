@@ -12,7 +12,7 @@ Adds **Previous / Next / See Also** navigation to your notes through standard fr
 |---|---|
 | **Inline navigation** | Previous / Next cards rendered at the bottom of each note (Reading & Source view) |
 | **Floating side buttons** | Circular or full-height strip buttons inside the document area |
-| **See Also list** | Related-note list rendered at the top or bottom of a note |
+| **See Also list** | Related-link list rendered at the top or bottom of a note — vault notes and external URLs |
 | **Auto backlink** | When you set Prev/Next, the plugin keeps the reciprocal link on the target note in sync |
 | **New-note seeding** | Newly created empty notes get the three navigation properties automatically |
 | **Edge / tap navigation** | Optional: double-click page margins or tap half the screen on mobile to navigate |
