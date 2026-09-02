@@ -2,7 +2,7 @@ import type { MarkdownView, TFile } from 'obsidian';
 
 import { INJECTED_CLASS } from '../constants';
 import type ArticleNavigatorPlugin from '../main';
-import type { NavData } from '../types';
+import type { NavData, SeeAlsoTarget } from '../types';
 
 interface InjectionContainer {
 	el: HTMLElement;
@@ -48,17 +48,18 @@ export function injectInline(
 
 	const showInline = plugin.settings.inlineEnabled;
 	const showSeeAlso =
-		plugin.settings.seeAlsoPosition !== 'none' && data.seeAlsoFiles.length > 0;
+		plugin.settings.seeAlsoPosition !== 'none' &&
+		data.seeAlsoTargets.length > 0;
 	const seeAlsoAtTop = plugin.settings.seeAlsoPosition === 'top';
 
 	for (const { el: container } of containers) {
 		if (showSeeAlso && seeAlsoAtTop) {
-			const el = buildSeeAlsoElement(plugin, data.seeAlsoFiles);
+			const el = buildSeeAlsoElement(plugin, data.seeAlsoTargets);
 			el.classList.add('article-nav-seealso-top');
 			prependAfterPusher(container, el);
 		}
 		if (showSeeAlso && !seeAlsoAtTop) {
-			const el = buildSeeAlsoElement(plugin, data.seeAlsoFiles);
+			const el = buildSeeAlsoElement(plugin, data.seeAlsoTargets);
 			el.classList.add('article-nav-seealso-bottom');
 			appendBeforeBacklinks(container, el);
 		}
@@ -128,7 +129,7 @@ function buildInlineLink(
 
 function buildSeeAlsoElement(
 	plugin: ArticleNavigatorPlugin,
-	files: TFile[],
+	targets: SeeAlsoTarget[],
 ): HTMLElement {
 	const root = document.createElement('div');
 	root.classList.add('article-nav-seealso', INJECTED_CLASS);
@@ -140,25 +141,57 @@ function buildSeeAlsoElement(
 
 	const list = document.createElement('ul');
 	list.classList.add('article-nav-seealso-list');
-	for (const f of files) {
+	for (const target of targets) {
 		const li = document.createElement('li');
-		const a = document.createElement('a');
-		a.classList.add('article-nav-seealso-link', 'internal-link');
-		a.setAttribute('href', '#');
-		a.setAttribute('data-href', f.path);
-		a.textContent = f.basename;
-		a.addEventListener('click', (e) => {
-			e.preventDefault();
-			plugin.openFile(f, e);
-		});
-		a.addEventListener('mouseover', (e) =>
-			triggerHoverPreview(plugin, e, f, a),
+		li.appendChild(
+			target.kind === 'external'
+				? buildSeeAlsoExternalLink(target.url, target.display)
+				: buildSeeAlsoInternalLink(plugin, target.file, target.display),
 		);
-		li.appendChild(a);
 		list.appendChild(li);
 	}
 	root.appendChild(list);
 	return root;
+}
+
+function buildSeeAlsoInternalLink(
+	plugin: ArticleNavigatorPlugin,
+	file: TFile,
+	display: string,
+): HTMLAnchorElement {
+	const a = document.createElement('a');
+	a.classList.add('article-nav-seealso-link', 'internal-link');
+	a.setAttribute('href', '#');
+	a.setAttribute('data-href', file.path);
+	a.textContent = display;
+	a.addEventListener('click', (e) => {
+		e.preventDefault();
+		plugin.openFile(file, e);
+	});
+	a.addEventListener('mouseover', (e) =>
+		triggerHoverPreview(plugin, e, file, a),
+	);
+	return a;
+}
+
+/**
+ * Mirrors the markup Obsidian emits for external links in rendered markdown, so
+ * clicks are handed to the system browser on both desktop and mobile without
+ * any extra wiring.
+ */
+function buildSeeAlsoExternalLink(
+	url: string,
+	display: string,
+): HTMLAnchorElement {
+	const a = document.createElement('a');
+	a.classList.add('article-nav-seealso-link', 'external-link');
+	a.setAttribute('href', url);
+	a.setAttribute('target', '_blank');
+	a.setAttribute('rel', 'noopener nofollow');
+	a.setAttribute('aria-label', url);
+	a.setAttribute('data-tooltip-position', 'top');
+	a.textContent = display;
+	return a;
 }
 
 function triggerHoverPreview(
